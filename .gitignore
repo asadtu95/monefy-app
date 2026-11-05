@@ -1,0 +1,28 @@
+# ---------- .NET ----------
+[Bb]in/
+[Oo]bj/
+*.user
+*.suo
+.vs/
+
+# Local config that may hold secrets
+appsettings.Local.json
+appsettings.*.Local.json
+
+# ---------- Node / Angular ----------
+node_modules/
+dist/
+.angular/
+npm-debug.log*
+yarn-error.log*
+
+# ---------- Editors ----------
+.idea/
+*.swp
+.DS_Store
+Thumbs.db
+
+# ---------- Env ----------
+.env
+.env.*
+!.env.example
