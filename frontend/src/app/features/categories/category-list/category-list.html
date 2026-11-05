@@ -1,0 +1,78 @@
+<div class="page">
+  <div class="page__head">
+    <p class="muted">Built-in categories are fixed. Anything you add here is yours to change.</p>
+    <a class="btn btn--primary" routerLink="/categories/add">New category</a>
+  </div>
+
+  @if (error()) {
+    <div class="card"><div class="card__body"><p class="field__error">{{ error() }}</p></div></div>
+  }
+
+  @if (loading()) {
+    <div class="card"><div class="empty">Loading…</div></div>
+  } @else {
+    <div class="cols">
+      <section class="card">
+        <div class="card__head">
+          <div>
+            <h2 class="card__title">Income</h2>
+            <p class="card__sub">{{ income().length }} categories</p>
+          </div>
+        </div>
+        <div class="card__body">
+          <ul class="cats">
+            @for (c of income(); track c.id) {
+              <li class="cat">
+                <span class="chip" [style.background]="c.color + '1f'" aria-hidden="true">{{ icon(c.icon) }}</span>
+                <span class="cat__name">{{ c.name }}</span>
+                @if (c.isDefault) {
+                  <span class="cat__tag">Built-in</span>
+                } @else {
+                  <button
+                    class="btn btn--danger cat__del"
+                    type="button"
+                    (click)="remove(c)"
+                    [attr.aria-label]="'Delete ' + c.name"
+                  >
+                    ✕
+                  </button>
+                }
+              </li>
+            }
+          </ul>
+        </div>
+      </section>
+
+      <section class="card">
+        <div class="card__head">
+          <div>
+            <h2 class="card__title">Expense</h2>
+            <p class="card__sub">{{ expense().length }} categories</p>
+          </div>
+        </div>
+        <div class="card__body">
+          <ul class="cats">
+            @for (c of expense(); track c.id) {
+              <li class="cat">
+                <span class="chip" [style.background]="c.color + '1f'" aria-hidden="true">{{ icon(c.icon) }}</span>
+                <span class="cat__name">{{ c.name }}</span>
+                @if (c.isDefault) {
+                  <span class="cat__tag">Built-in</span>
+                } @else {
+                  <button
+                    class="btn btn--danger cat__del"
+                    type="button"
+                    (click)="remove(c)"
+                    [attr.aria-label]="'Delete ' + c.name"
+                  >
+                    ✕
+                  </button>
+                }
+              </li>
+            }
+          </ul>
+        </div>
+      </section>
+    </div>
+  }
+</div>

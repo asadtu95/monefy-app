@@ -1,0 +1,175 @@
+<div class="page">
+  <div class="page__head">
+    <div class="monthnav">
+      <button class="monthnav__btn" type="button" (click)="shiftMonth(-1)" aria-label="Previous month">‹</button>
+      <span class="monthnav__label">{{ monthLabel() }}</span>
+      <button class="monthnav__btn" type="button" (click)="shiftMonth(1)" aria-label="Next month">›</button>
+    </div>
+
+    <div class="total">
+      <span class="total__label">Total</span>
+      <span class="total__value">{{ total() | currencyFormat }}</span>
+    </div>
+  </div>
+
+  <section class="card">
+    @if (loading()) {
+      <div class="empty">Loading…</div>
+    } @else if (error()) {
+      <div class="empty">
+        <span class="empty__title">{{ error() }}</span>
+        <button class="btn btn--ghost" type="button" (click)="load()">Try again</button>
+      </div>
+    } @else if (items().length === 0) {
+      <div class="empty">
+        <span class="empty__title">No expenses in {{ monthLabel() }}</span>
+        <p>Every expense you add will show up here.</p>
+        <a class="btn btn--primary" routerLink="/expenses/add">Add expense</a>
+      </div>
+    } @else {
+      <div class="card__head">
+        <div class="views" role="tablist" aria-label="Expense grouping">
+          <button
+            class="views__tab"
+            type="button"
+            role="tab"
+            [attr.aria-selected]="view() === 'grouped'"
+            [class.is-active]="view() === 'grouped'"
+            (click)="setView('grouped')"
+          >
+            By category
+          </button>
+          <button
+            class="views__tab"
+            type="button"
+            role="tab"
+            [attr.aria-selected]="view() === 'all'"
+            [class.is-active]="view() === 'all'"
+            (click)="setView('all')"
+          >
+            All
+          </button>
+        </div>
+
+        @if (view() === 'grouped') {
+          <p class="card__sub">{{ groups().length }} categories · {{ items().length }} entries</p>
+        }
+      </div>
+
+      @if (view() === 'grouped') {
+        <!-- ============ grouped by category ============ -->
+        <ul class="groups">
+          @for (g of groups(); track g.categoryId) {
+            <li class="group" [class.is-open]="isExpanded(g.categoryId)">
+              <button
+                class="group__head"
+                type="button"
+                (click)="toggleGroup(g.categoryId)"
+                [attr.aria-expanded]="isExpanded(g.categoryId)"
+              >
+                <span class="chip" [style.background]="g.categoryColor + '1f'" aria-hidden="true">
+                  {{ icon(g.categoryIcon) }}
+                </span>
+
+                <span class="group__main">
+                  <span class="group__top">
+                    <span class="group__name">{{ g.categoryName }}</span>
+                    <span class="group__amount tabular">{{ g.total | currencyFormat }}</span>
+                  </span>
+
+                  <!-- Single sequential hue: the job is magnitude, not identity.
+                       Category colour stays on the chip so it can't be mistaken
+                       for a scale. -->
+                  <span class="group__track">
+                    <span class="group__fill" [style.width.%]="g.percentage"></span>
+                  </span>
+
+                  <span class="group__meta">
+                    <span class="tabular">{{ g.percentage }}%</span>
+                    <span aria-hidden="true">·</span>
+                    <span>{{ g.items.length }} {{ g.items.length === 1 ? 'entry' : 'entries' }}</span>
+                  </span>
+                </span>
+
+                <span class="group__caret" aria-hidden="true">
+                  {{ isExpanded(g.categoryId) ? '⌃' : '⌄' }}
+                </span>
+              </button>
+
+              @if (isExpanded(g.categoryId)) {
+                <ul class="txns txns--nested">
+                  @for (e of g.items; track e.id) {
+                    <li class="txn">
+                      <div class="txn__main">
+                        <span class="txn__name">{{ e.date }}</span>
+                        <span class="txn__meta">
+                          {{ e.paymentMethod }}@if (e.note) { · {{ e.note }} }
+                        </span>
+                      </div>
+
+                      <span class="txn__amount tabular">−{{ e.amount | currencyFormat }}</span>
+
+                      <div class="txn__tools">
+                        <a
+                          class="btn btn--ghost txn__btn"
+                          [routerLink]="['/expenses', e.id, 'edit']"
+                          [attr.aria-label]="'Edit ' + e.categoryName + ' expense'"
+                          >✎</a
+                        >
+                        <button
+                          class="btn btn--danger txn__btn"
+                          type="button"
+                          (click)="remove(e)"
+                          [attr.aria-label]="'Delete ' + e.categoryName + ' expense'"
+                        >
+                          ✕
+                        </button>
+                      </div>
+                    </li>
+                  }
+                </ul>
+              }
+            </li>
+          }
+        </ul>
+      } @else {
+        <!-- ============ flat, newest first ============ -->
+        <ul class="txns">
+          @for (e of items(); track e.id) {
+            <li class="txn">
+              <span class="chip" [style.background]="e.categoryColor + '1f'" aria-hidden="true">
+                {{ icon(e.categoryIcon) }}
+              </span>
+
+              <div class="txn__main">
+                <span class="txn__name">{{ e.categoryName }}</span>
+                <span class="txn__meta">
+                  {{ e.date }} · {{ e.paymentMethod }}@if (e.note) { · {{ e.note }} }
+                </span>
+              </div>
+
+              <span class="txn__amount tabular">−{{ e.amount | currencyFormat }}</span>
+
+              <div class="txn__tools">
+                <a
+                  class="btn btn--ghost txn__btn"
+                  [routerLink]="['/expenses', e.id, 'edit']"
+                  [attr.aria-label]="'Edit ' + e.categoryName + ' expense'"
+                  >✎</a
+                >
+                <button
+                  class="btn btn--danger txn__btn"
+                  type="button"
+                  (click)="remove(e)"
+                  [attr.aria-label]="'Delete ' + e.categoryName + ' expense'"
+                >
+                  ✕
+                </button>
+              </div>
+            </li>
+          }
+        </ul>
+      }
+    }
+  </section>
+</div>

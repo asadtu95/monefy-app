@@ -1,0 +1,184 @@
+<div class="page">
+  <!-- month switcher -->
+  <div class="page__head">
+    <div class="monthnav">
+      <button class="monthnav__btn" type="button" (click)="shiftMonth(-1)" aria-label="Previous month">‹</button>
+      <span class="monthnav__label">{{ monthLabel() }}</span>
+      <button class="monthnav__btn" type="button" (click)="shiftMonth(1)" aria-label="Next month">›</button>
+    </div>
+  </div>
+
+  @if (loading()) {
+    <div class="card"><div class="empty">Loading…</div></div>
+  } @else if (error()) {
+    <div class="card">
+      <div class="empty">
+        <span class="empty__title">{{ error() }}</span>
+        <button class="btn btn--ghost" type="button" (click)="load()">Try again</button>
+      </div>
+    </div>
+  } @else if (data(); as d) {
+    <!-- ============ KPI row ============ -->
+    <section class="kpis" aria-label="Monthly summary">
+      <article class="card kpi">
+        <span class="kpi__label">Total income</span>
+        <span class="kpi__value kpi__value--income">{{ d.totalIncome | currencyFormat }}</span>
+        <span class="kpi__foot">{{ d.incomeByCategory.length }} source(s)</span>
+      </article>
+
+      <article class="card kpi">
+        <span class="kpi__label">Total expense</span>
+        <span class="kpi__value kpi__value--expense">{{ d.totalExpense | currencyFormat }}</span>
+        <span class="kpi__foot">{{ d.expenseByCategory.length }} categories</span>
+      </article>
+
+      <article class="card kpi">
+        <span class="kpi__label">Remaining balance</span>
+        <span class="kpi__value" [class.kpi__value--expense]="d.remainingBalance < 0">
+          {{ d.remainingBalance | currencyFormat }}
+        </span>
+        <span class="kpi__foot">Income minus expense</span>
+      </article>
+
+      <article class="card kpi">
+        <span class="kpi__label">Monthly savings</span>
+        <span class="kpi__value kpi__value--savings">{{ d.monthlySavings | currencyFormat }}</span>
+        <span class="kpi__foot">Booked to Savings</span>
+      </article>
+    </section>
+
+    @if (!d.hasData) {
+      <div class="card">
+        <div class="empty">
+          <span class="empty__title">Nothing recorded for {{ monthLabel() }}</span>
+          <p>Add your first entry and the charts below will fill in.</p>
+          <a class="btn btn--primary" routerLink="/expenses/add">Add expense</a>
+        </div>
+      </div>
+    } @else {
+      <div class="grid">
+        <!-- ============ Category-wise percentage ============ -->
+        <section class="card">
+          <div class="card__head">
+            <div>
+              <h2 class="card__title">Where the money went</h2>
+              <p class="card__sub">Share of total expense · {{ monthLabel() }}</p>
+            </div>
+          </div>
+
+          <div class="card__body">
+            @if (d.expenseByCategory.length === 0) {
+              <p class="muted">No expenses this month.</p>
+            } @else {
+              <ul class="breakdown">
+                @for (c of d.expenseByCategory; track c.categoryId) {
+                  <li class="breakdown__row">
+                    <span class="chip" [style.background]="c.color + '1f'" aria-hidden="true">
+                      {{ icon(c.icon) }}
+                    </span>
+
+                    <div class="breakdown__main">
+                      <div class="breakdown__top">
+                        <span class="breakdown__name">{{ c.categoryName }}</span>
+                        <span class="breakdown__amount tabular">{{ c.total | currencyFormat }}</span>
+                      </div>
+
+                      <div class="breakdown__track">
+                        <div class="breakdown__fill" [style.width.%]="c.percentage"></div>
+                      </div>
+                    </div>
+
+                    <span class="breakdown__pct tabular">{{ c.percentage }}%</span>
+                  </li>
+                }
+              </ul>
+            }
+          </div>
+        </section>
+
+        <!-- ============ Monthly chart ============ -->
+        <section class="card">
+          <div class="card__head">
+            <div>
+              <h2 class="card__title">Day by day</h2>
+              <p class="card__sub">Income and expense per day · {{ monthLabel() }}</p>
+            </div>
+
+            <!-- legend: identity never rests on colour alone -->
+            <ul class="legend">
+              <li class="legend__item">
+                <span class="legend__key legend__key--income" aria-hidden="true"></span>Income
+              </li>
+              <li class="legend__item">
+                <span class="legend__key legend__key--expense" aria-hidden="true"></span>Expense
+              </li>
+            </ul>
+          </div>
+
+          <div class="card__body">
+            @if (!hasChartData()) {
+              <p class="muted">No daily activity yet.</p>
+            } @else {
+              <div class="chart">
+                <div class="chart__axis">
+                  @for (t of axisTicks(); track $index) {
+                    <span class="chart__tick tabular">{{ t | currencyFormat: 'compact' }}</span>
+                  }
+                </div>
+
+                <div class="chart__plot">
+                  <div class="chart__grid" aria-hidden="true">
+                    <span></span><span></span><span></span>
+                  </div>
+
+                  <ol class="chart__days">
+                    @for (col of columns(); track col.day) {
+                      <li
+                        class="day"
+                        [attr.title]="
+                          col.label +
+                          ' · income ' + col.income +
+                          ' · expense ' + col.expense
+                        "
+                      >
+                        <div class="day__bars">
+                          <!-- income is always the left bar, expense the right:
+                               position carries identity when colour can't -->
+                          <span class="day__bar day__bar--income" [style.height.%]="col.incomeHeight"></span>
+                          <span class="day__bar day__bar--expense" [style.height.%]="col.expenseHeight"></span>
+                        </div>
+                        <span class="day__label tabular">{{ col.day }}</span>
+                      </li>
+                    }
+                  </ol>
+                </div>
+              </div>
+
+              <!-- table view: the relief path for colour-blind and screen-reader users -->
+              <details class="tableview">
+                <summary>View as table</summary>
+                <table class="tbl">
+                  <caption class="visually-hidden">Daily income and expense for {{ monthLabel() }}</caption>
+                  <thead>
+                    <tr><th scope="col">Day</th><th scope="col">Income</th><th scope="col">Expense</th></tr>
+                  </thead>
+                  <tbody>
+                    @for (col of columns(); track col.day) {
+                      @if (col.income > 0 || col.expense > 0) {
+                        <tr>
+                          <td class="tabular">{{ col.day }}</td>
+                          <td class="tabular">{{ col.income | currencyFormat }}</td>
+                          <td class="tabular">{{ col.expense | currencyFormat }}</td>
+                        </tr>
+                      }
+                    }
+                  </tbody>
+                </table>
+              </details>
+            }
+          </div>
+        </section>
+      </div>
+    }
+  }
+</div>

@@ -1,0 +1,70 @@
+<div class="page">
+  <form class="card formcard" [formGroup]="form" (ngSubmit)="submit()">
+    <div class="card__head">
+      <div>
+        <h2 class="card__title">Edit income</h2>
+        <p class="card__sub">Money coming in</p>
+      </div>
+    </div>
+
+    <div class="card__body formcard__body">
+      @if (loading()) {
+        <p class="muted">Loading…</p>
+      } @else {
+        @if (error()) {
+          <p class="field__error">{{ error() }}</p>
+        }
+
+        <div class="field">
+          <label class="field__label" for="amount">Amount</label>
+          <input
+            id="amount"
+            class="input"
+            type="number"
+            step="0.01"
+            min="0.01"
+            formControlName="amount"
+            [class.is-invalid]="form.controls.amount.touched && form.controls.amount.invalid"
+          />
+          @if (form.controls.amount.touched && form.controls.amount.invalid) {
+            <span class="field__error">Enter an amount greater than zero.</span>
+          }
+        </div>
+
+        <div class="field">
+          <span class="field__label">Source</span>
+          <div class="picker">
+            @for (c of options(); track c.id) {
+              <button
+                type="button"
+                class="picker__item"
+                [class.is-selected]="form.controls.categoryId.value === c.id"
+                (click)="pick(c.id)"
+              >
+                <span class="chip" [style.background]="c.color + '1f'" aria-hidden="true">{{ icon(c.icon) }}</span>
+                <span class="picker__name">{{ c.name }}</span>
+              </button>
+            }
+          </div>
+        </div>
+
+        <div class="field">
+          <label class="field__label" for="date">Date</label>
+          <input id="date" class="input" type="date" formControlName="date" />
+        </div>
+
+        <div class="field">
+          <label class="field__label" for="note">Note <span class="muted">(optional)</span></label>
+          <textarea id="note" class="input" formControlName="note"></textarea>
+        </div>
+
+        <div class="actions">
+          <a class="btn btn--ghost" routerLink="/incomes">Cancel</a>
+          <button class="btn btn--primary" type="submit" [disabled]="saving()">
+            {{ saving() ? 'Saving…' : 'Save changes' }}
+          </button>
+        </div>
+      }
+    </div>
+  </form>
+</div>

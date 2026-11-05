@@ -1,0 +1,86 @@
+<div class="auth">
+  <form class="card auth__card" [formGroup]="form" (ngSubmit)="submit()">
+    <div class="auth__brand">
+      <span class="auth__mark" aria-hidden="true">₨</span>
+      <span class="auth__name">Monefy</span>
+    </div>
+
+    <!--
+      Email-confirmation flow (commented out on request).
+      Restore this @if / @else together with the `checkInbox` signal in
+      register.ts if you turn "Confirm email" back on in Supabase.
+
+      @if (checkInbox()) {
+        <h1 class="auth__title">Check your inbox</h1>
+        <p class="auth__sub">
+          We sent a confirmation link to {{ form.controls.email.value }}. Click it, then sign in.
+        </p>
+        <a class="btn btn--primary auth__submit" routerLink="/auth/login">Back to sign in</a>
+      } @else {
+      ...the block below...
+      }
+    -->
+
+    <h1 class="auth__title">Create your account</h1>
+    <p class="auth__sub">Your expenses stay private to you.</p>
+
+    <div class="auth__form">
+      @if (error()) {
+        <p class="auth__banner auth__banner--error">{{ error() }}</p>
+      }
+
+      <div class="field">
+        <label class="field__label" for="fullName">Name</label>
+        <input
+          id="fullName"
+          class="input"
+          type="text"
+          autocomplete="name"
+          formControlName="fullName"
+          [class.is-invalid]="form.controls.fullName.touched && form.controls.fullName.invalid"
+        />
+        @if (form.controls.fullName.touched && form.controls.fullName.invalid) {
+          <span class="field__error">Tell us what to call you.</span>
+        }
+      </div>
+
+      <div class="field">
+        <label class="field__label" for="email">Email</label>
+        <input
+          id="email"
+          class="input"
+          type="email"
+          autocomplete="email"
+          formControlName="email"
+          [class.is-invalid]="form.controls.email.touched && form.controls.email.invalid"
+        />
+        @if (form.controls.email.touched && form.controls.email.invalid) {
+          <span class="field__error">Enter a valid email address.</span>
+        }
+      </div>
+
+      <div class="field">
+        <label class="field__label" for="password">Password</label>
+        <input
+          id="password"
+          class="input"
+          type="password"
+          autocomplete="new-password"
+          formControlName="password"
+          [class.is-invalid]="form.controls.password.touched && form.controls.password.invalid"
+        />
+        @if (form.controls.password.touched && form.controls.password.invalid) {
+          <span class="field__error">Use at least 6 characters.</span>
+        }
+      </div>
+
+      <button class="btn btn--primary auth__submit" type="submit" [disabled]="busy()">
+        {{ busy() ? 'Creating account…' : 'Create account' }}
+      </button>
+    </div>
+
+    <p class="auth__foot">
+      Already have an account? <a class="auth__link" routerLink="/auth/login">Sign in</a>
+    </p>
+  </form>
+</div>

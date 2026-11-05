@@ -1,0 +1,33 @@
+<header class="header">
+  <h1 class="header__title">{{ title }}</h1>
+
+  <div class="header__actions">
+    <a class="btn btn--ghost" routerLink="/incomes/add">Add income</a>
+    <a class="btn btn--primary" routerLink="/expenses/add">Add expense</a>
+
+    <div class="user">
+      <button
+        class="user__button"
+        type="button"
+        (click)="toggleMenu()"
+        [attr.aria-expanded]="menuOpen()"
+        aria-haspopup="menu"
+        [attr.aria-label]="'Account menu for ' + (auth.displayName() ?? 'your account')"
+      >
+        {{ initial }}
+      </button>
+
+      @if (menuOpen()) {
+        <div class="user__menu" role="menu">
+          <div class="user__id">
+            <span class="user__name">{{ auth.displayName() }}</span>
+            <span class="user__email">{{ auth.email() }}</span>
+          </div>
+          <button class="user__item" type="button" role="menuitem" (click)="logout()">
+            Sign out
+          </button>
+        </div>
+      }
+    </div>
+  </div>
+</header>

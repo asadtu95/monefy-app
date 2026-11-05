@@ -1,0 +1,110 @@
+.monthnav {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+  box-shadow: var(--shadow-sm);
+}
+
+.monthnav__btn {
+  width: 32px;
+  height: 32px;
+  border: 0;
+  border-radius: var(--r-sm);
+  background: transparent;
+  color: var(--ink-secondary);
+  font-size: 1.125rem;
+  line-height: 1;
+
+  &:hover {
+    background: var(--surface-hover);
+    color: var(--ink);
+  }
+}
+
+.monthnav__label {
+  min-width: 130px;
+  text-align: center;
+  font-weight: 600;
+  font-size: 0.9375rem;
+}
+
+.total {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+}
+
+.total__label {
+  font-size: 0.75rem;
+  color: var(--ink-muted);
+}
+
+.total__value {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--income);
+}
+
+.txns {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.txn {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 20px;
+  border-bottom: 1px solid var(--border);
+
+  &:last-child {
+    border-bottom: 0;
+  }
+
+  &:hover {
+    background: var(--surface-sunken);
+  }
+}
+
+.txn__main {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.txn__name {
+  font-weight: 500;
+  font-size: 0.9375rem;
+}
+
+.txn__meta {
+  font-size: 0.8125rem;
+  color: var(--ink-muted);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.txn__amount {
+  font-weight: 600;
+  color: var(--income);
+  white-space: nowrap;
+}
+
+.txn__tools {
+  display: flex;
+  gap: 4px;
+}
+
+.txn__btn {
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  font-size: 0.8125rem;
+}

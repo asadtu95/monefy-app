@@ -1,0 +1,65 @@
+<div class="page">
+  <div class="page__head">
+    <div class="monthnav">
+      <button class="monthnav__btn" type="button" (click)="shiftMonth(-1)" aria-label="Previous month">‹</button>
+      <span class="monthnav__label">{{ monthLabel() }}</span>
+      <button class="monthnav__btn" type="button" (click)="shiftMonth(1)" aria-label="Next month">›</button>
+    </div>
+
+    <div class="total">
+      <span class="total__label">Total</span>
+      <span class="total__value">{{ total() | currencyFormat }}</span>
+    </div>
+  </div>
+
+  <section class="card">
+    @if (loading()) {
+      <div class="empty">Loading…</div>
+    } @else if (error()) {
+      <div class="empty">
+        <span class="empty__title">{{ error() }}</span>
+        <button class="btn btn--ghost" type="button" (click)="load()">Try again</button>
+      </div>
+    } @else if (items().length === 0) {
+      <div class="empty">
+        <span class="empty__title">No income in {{ monthLabel() }}</span>
+        <p>Salary, Committee and Savings entries land here.</p>
+        <a class="btn btn--primary" routerLink="/incomes/add">Add income</a>
+      </div>
+    } @else {
+      <ul class="txns">
+        @for (i of items(); track i.id) {
+          <li class="txn">
+            <span class="chip" [style.background]="i.categoryColor + '1f'" aria-hidden="true">
+              {{ icon(i.categoryIcon) }}
+            </span>
+
+            <div class="txn__main">
+              <span class="txn__name">{{ i.categoryName }}</span>
+              <span class="txn__meta">{{ i.date }}@if (i.note) { · {{ i.note }} }</span>
+            </div>
+
+            <span class="txn__amount tabular">+{{ i.amount | currencyFormat }}</span>
+
+            <div class="txn__tools">
+              <a
+                class="btn btn--ghost txn__btn"
+                [routerLink]="['/incomes', i.id, 'edit']"
+                [attr.aria-label]="'Edit ' + i.categoryName + ' entry'"
+                >✎</a
+              >
+              <button
+                class="btn btn--danger txn__btn"
+                type="button"
+                (click)="remove(i)"
+                [attr.aria-label]="'Delete ' + i.categoryName + ' entry'"
+              >
+                ✕
+              </button>
+            </div>
+          </li>
+        }
+      </ul>
+    }
+  </section>
+</div>

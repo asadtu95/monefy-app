@@ -1,0 +1,59 @@
+<div class="auth">
+  <form class="card auth__card" [formGroup]="form" (ngSubmit)="submit()">
+    <div class="auth__brand">
+      <span class="auth__mark" aria-hidden="true">₨</span>
+      <span class="auth__name">Monefy</span>
+    </div>
+
+    <h1 class="auth__title">Welcome back</h1>
+    <p class="auth__sub">Sign in to see your expenses.</p>
+
+    <div class="auth__form">
+      @if (error()) {
+        <p class="auth__banner auth__banner--error">{{ error() }}</p>
+      }
+
+      <div class="field">
+        <label class="field__label" for="email">Email</label>
+        <input
+          id="email"
+          class="input"
+          type="email"
+          autocomplete="email"
+          formControlName="email"
+          [class.is-invalid]="form.controls.email.touched && form.controls.email.invalid"
+        />
+        @if (form.controls.email.touched && form.controls.email.invalid) {
+          <span class="field__error">Enter a valid email address.</span>
+        }
+      </div>
+
+      <div class="field">
+        <label class="field__label" for="password">Password</label>
+        <input
+          id="password"
+          class="input"
+          type="password"
+          autocomplete="current-password"
+          formControlName="password"
+          [class.is-invalid]="form.controls.password.touched && form.controls.password.invalid"
+        />
+        @if (form.controls.password.touched && form.controls.password.invalid) {
+          <span class="field__error">Password must be at least 6 characters.</span>
+        }
+      </div>
+
+      <div class="auth__aside">
+        <a class="auth__link" routerLink="/auth/forgot-password">Forgot password?</a>
+      </div>
+
+      <button class="btn btn--primary auth__submit" type="submit" [disabled]="busy()">
+        {{ busy() ? 'Signing in…' : 'Sign in' }}
+      </button>
+    </div>
+
+    <p class="auth__foot">
+      New here? <a class="auth__link" routerLink="/auth/register">Create an account</a>
+    </p>
+  </form>
+</div>
