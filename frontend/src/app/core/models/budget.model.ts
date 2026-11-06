@@ -1,25 +1,41 @@
-import { Category } from './category.model';
-import { BudgetPeriod } from './enums';
+/** "ok" below 80% used, "warning" from 80%, "over" past 100%. */
+export type BudgetStatus = 'ok' | 'warning' | 'over';
 
+/** A standing monthly limit for one expense category, measured against one month. */
 export interface Budget {
   id: string;
   amount: number;
-  period: BudgetPeriod;
+  categoryId: string;
+  categoryName: string;
+  categoryIcon: string;
+  categoryColor: string;
+  spent: number;
+  /** Negative once the limit is exceeded. */
+  remaining: number;
+  /** Can exceed 100. */
+  percentageUsed: number;
+  status: BudgetStatus;
+}
+
+export interface BudgetOverview {
+  year: number;
+  month: number;
   startDate: string;
   endDate: string;
-  categoryId: string;
-  category: Category | null;
-  /** Computed server-side from expenses inside the period. */
-  spentAmount: number;
-  remainingAmount: number;
+  totalBudget: number;
+  totalSpent: number;
+  totalRemaining: number;
   percentageUsed: number;
+  /** Days left in the month including today; 0 for past months. */
+  daysLeft: number;
+  budgets: Budget[];
 }
 
 export interface CreateBudgetRequest {
-  amount: number;
-  period: BudgetPeriod;
-  startDate: string;
   categoryId: string;
+  amount: number;
 }
 
-export type UpdateBudgetRequest = Partial<CreateBudgetRequest>;
+export interface UpdateBudgetRequest {
+  amount: number;
+}

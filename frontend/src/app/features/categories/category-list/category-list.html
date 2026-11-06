@@ -28,6 +28,12 @@
                 @if (c.isDefault) {
                   <span class="cat__tag">Built-in</span>
                 } @else {
+                  <a
+                    class="btn btn--ghost cat__del"
+                    [routerLink]="['/categories', c.id, 'edit']"
+                    [attr.aria-label]="'Edit ' + c.name"
+                    >✎</a
+                  >
                   <button
                     class="btn btn--danger cat__del"
                     type="button"
@@ -59,6 +65,12 @@
                 @if (c.isDefault) {
                   <span class="cat__tag">Built-in</span>
                 } @else {
+                  <a
+                    class="btn btn--ghost cat__del"
+                    [routerLink]="['/categories', c.id, 'edit']"
+                    [attr.aria-label]="'Edit ' + c.name"
+                    >✎</a
+                  >
                   <button
                     class="btn btn--danger cat__del"
                     type="button"

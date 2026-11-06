@@ -19,6 +19,10 @@ export class Sidebar {
     { label: 'Expenses', path: '/expenses', icon: '↗' },
     { label: 'Income', path: '/incomes', icon: '↙' },
     { label: 'Dashboard', path: '/dashboard', icon: '◧' },
+    { label: 'Budgets', path: '/budgets', icon: '◔' },
+    { label: 'Goals', path: '/goals', icon: '◎' },
+    { label: 'Reports', path: '/reports', icon: '▤' },
     { label: 'Categories', path: '/categories', icon: '☰' },
+    { label: 'Settings', path: '/settings', icon: '⚙' },
   ];
 }

@@ -5,7 +5,11 @@
     <app-header />
 
     <main class="layout__content">
-      <router-outlet />
+      @if (ready()) {
+        <router-outlet />
+      } @else {
+        <div class="card"><div class="empty">Loading…</div></div>
+      }
     </main>
   </div>
 </div>

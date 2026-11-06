@@ -1,6 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { BudgetList } from './budget-list';
+import { appTestProviders } from '../../../testing/test-providers';
 
 describe('BudgetList', () => {
   let component: BudgetList;
@@ -9,6 +10,7 @@ describe('BudgetList', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [BudgetList],
+      providers: appTestProviders(),
     }).compileComponents();
 
     fixture = TestBed.createComponent(BudgetList);

@@ -23,6 +23,9 @@
             <span class="user__name">{{ auth.displayName() }}</span>
             <span class="user__email">{{ auth.email() }}</span>
           </div>
+          <a class="user__item" role="menuitem" routerLink="/settings" (click)="closeMenu()">
+            Settings
+          </a>
           <button class="user__item" type="button" role="menuitem" (click)="logout()">
             Sign out
           </button>

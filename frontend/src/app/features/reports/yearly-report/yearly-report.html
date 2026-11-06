@@ -1,1 +1,174 @@
-<p>yearly-report works!</p>
+<div class="page">
+  <div class="page__head">
+    <nav class="tabs" aria-label="Report type">
+      <a class="tabs__item" routerLink="/reports/monthly" routerLinkActive="is-active">Monthly</a>
+      <a class="tabs__item" routerLink="/reports/yearly" routerLinkActive="is-active">Yearly</a>
+    </nav>
+
+    <div class="monthnav">
+      <button class="monthnav__btn" type="button" (click)="shiftYear(-1)" aria-label="Previous year">‹</button>
+      <span class="monthnav__label">{{ year() }}</span>
+      <button class="monthnav__btn" type="button" (click)="shiftYear(1)" aria-label="Next year">›</button>
+    </div>
+  </div>
+
+  @if (loading()) {
+    <div class="card"><div class="empty">Loading…</div></div>
+  } @else if (error()) {
+    <div class="card">
+      <div class="empty">
+        <span class="empty__title">{{ error() }}</span>
+        <button class="btn btn--ghost" type="button" (click)="load()">Try again</button>
+      </div>
+    </div>
+  } @else if (data(); as d) {
+    @if (!hasData()) {
+      <div class="card">
+        <div class="empty">
+          <span class="empty__title">Nothing recorded in {{ year() }}</span>
+          <p>Your year in numbers appears here once you add income and expenses.</p>
+        </div>
+      </div>
+    } @else {
+      <!-- ============ year totals ============ -->
+      <section class="stats" aria-label="Year totals">
+        <article class="card stat">
+          <span class="stat__label">Total income</span>
+          <span class="stat__value is-income-text">{{ d.totalIncome | currencyFormat }}</span>
+          <span class="stat__foot">≈ {{ d.averageMonthlyIncome | currencyFormat }} a month</span>
+        </article>
+        <article class="card stat">
+          <span class="stat__label">Total expense</span>
+          <span class="stat__value is-expense-text">{{ d.totalExpense | currencyFormat }}</span>
+          <span class="stat__foot">≈ {{ d.averageMonthlyExpense | currencyFormat }} a month</span>
+        </article>
+        <article class="card stat">
+          <span class="stat__label">Left over</span>
+          <span class="stat__value" [class.is-expense-text]="d.totalNet < 0">{{ d.totalNet | currencyFormat }}</span>
+          <span class="stat__foot">Saved {{ d.savingsRate }}% of income</span>
+        </article>
+        <article class="card stat">
+          <span class="stat__label">Booked to Savings</span>
+          <span class="stat__value is-savings-text">{{ d.totalSavings | currencyFormat }}</span>
+          <span class="stat__foot">Income in the Savings category</span>
+        </article>
+      </section>
+
+      <!-- ============ 12-month chart ============ -->
+      <section class="card">
+        <div class="card__head">
+          <div>
+            <h2 class="card__title">Month by month</h2>
+            <p class="card__sub">Income and expense · {{ year() }}</p>
+          </div>
+          <ul class="legend">
+            <li class="legend__item"><span class="legend__key legend__key--income" aria-hidden="true"></span>Income</li>
+            <li class="legend__item"><span class="legend__key legend__key--expense" aria-hidden="true"></span>Expense</li>
+          </ul>
+        </div>
+
+        <div class="card__body">
+          <div class="chart">
+            <div class="chart__axis">
+              @for (t of axisTicks(); track $index) {
+                <span class="tabular">{{ t | currencyFormat: 'compact' }}</span>
+              }
+            </div>
+
+            <div class="chart__plot">
+              <div class="chart__grid" aria-hidden="true"><span></span><span></span><span></span></div>
+
+              <ol class="chart__cols">
+                @for (col of columns(); track col.label) {
+                  <li class="col" [attr.title]="col.label + ' · income ' + col.income + ' · expense ' + col.expense">
+                    <div class="col__bars">
+                      <!-- income always left, expense always right -->
+                      <span class="col__bar col__bar--income" [style.height.%]="col.incomeHeight"></span>
+                      <span class="col__bar col__bar--expense" [style.height.%]="col.expenseHeight"></span>
+                    </div>
+                    <span class="col__label">{{ col.label }}</span>
+                  </li>
+                }
+              </ol>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <div class="grid">
+        <!-- ============ month table ============ -->
+        <section class="card">
+          <div class="card__head">
+            <div>
+              <h2 class="card__title">Monthly totals</h2>
+              <p class="card__sub">Left over = income minus expense</p>
+            </div>
+          </div>
+          <div class="card__body tablewrap">
+            <table class="tbl">
+              <thead>
+                <tr>
+                  <th scope="col">Month</th>
+                  <th scope="col">Income</th>
+                  <th scope="col">Expense</th>
+                  <th scope="col">Left over</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (m of d.months; track m.month) {
+                  <tr [class.is-empty]="m.income === 0 && m.expense === 0">
+                    <th scope="row">{{ monthName(m.month) }}</th>
+                    <td class="tabular">{{ m.income | currencyFormat }}</td>
+                    <td class="tabular">{{ m.expense | currencyFormat }}</td>
+                    <td class="tabular" [class.is-expense-text]="m.net < 0">{{ m.net | currencyFormat }}</td>
+                  </tr>
+                }
+              </tbody>
+              <tfoot>
+                <tr>
+                  <th scope="row">Total</th>
+                  <td class="tabular">{{ d.totalIncome | currencyFormat }}</td>
+                  <td class="tabular">{{ d.totalExpense | currencyFormat }}</td>
+                  <td class="tabular" [class.is-expense-text]="d.totalNet < 0">{{ d.totalNet | currencyFormat }}</td>
+                </tr>
+              </tfoot>
+            </table>
+          </div>
+        </section>
+
+        <!-- ============ top categories ============ -->
+        <section class="card">
+          <div class="card__head">
+            <div>
+              <h2 class="card__title">Where the money went</h2>
+              <p class="card__sub">Top expense categories · {{ year() }}</p>
+            </div>
+          </div>
+          <div class="card__body">
+            @if (d.topExpenseCategories.length === 0) {
+              <p class="muted">No expenses this year.</p>
+            } @else {
+              <ul class="breakdown">
+                @for (c of d.topExpenseCategories; track c.categoryId) {
+                  <li class="breakdown__row">
+                    <span class="chip" [style.background]="c.color + '1f'" aria-hidden="true">{{ icon(c.icon) }}</span>
+                    <div class="breakdown__main">
+                      <div class="breakdown__top">
+                        <span class="breakdown__name">{{ c.categoryName }}</span>
+                        <span class="breakdown__amount tabular">{{ c.total | currencyFormat }}</span>
+                      </div>
+                      <div class="progress">
+                        <div class="progress__fill" [style.width.%]="c.percentage"></div>
+                      </div>
+                    </div>
+                    <span class="breakdown__pct tabular">{{ c.percentage }}%</span>
+                  </li>
+                }
+              </ul>
+            }
+          </div>
+        </section>
+      </div>
+    }
+  }
+</div>

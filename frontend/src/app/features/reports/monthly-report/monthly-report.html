@@ -1,1 +1,146 @@
-<p>monthly-report works!</p>
+<div class="page">
+  <div class="page__head">
+    <nav class="tabs" aria-label="Report type">
+      <a class="tabs__item" routerLink="/reports/monthly" routerLinkActive="is-active">Monthly</a>
+      <a class="tabs__item" routerLink="/reports/yearly" routerLinkActive="is-active">Yearly</a>
+    </nav>
+
+    <div class="monthnav">
+      <button class="monthnav__btn" type="button" (click)="shiftMonth(-1)" aria-label="Previous month">‹</button>
+      <span class="monthnav__label">
+        {{ monthLabel() }}
+        @if (rangeLabel(); as r) {
+          <small class="monthnav__range">{{ r }}</small>
+        }
+      </span>
+      <button class="monthnav__btn" type="button" (click)="shiftMonth(1)" aria-label="Next month">›</button>
+    </div>
+  </div>
+
+  @if (loading()) {
+    <div class="card"><div class="empty">Loading…</div></div>
+  } @else if (error()) {
+    <div class="card">
+      <div class="empty">
+        <span class="empty__title">{{ error() }}</span>
+        <button class="btn btn--ghost" type="button" (click)="load()">Try again</button>
+      </div>
+    </div>
+  } @else if (data(); as d) {
+    @if (!hasData()) {
+      <div class="card">
+        <div class="empty">
+          <span class="empty__title">Nothing to compare for {{ monthLabel() }}</span>
+          <p>Once you record income and expenses, this report compares them with the month before.</p>
+        </div>
+      </div>
+    } @else {
+      <!-- ============ headline numbers vs last month ============ -->
+      <section class="stats" aria-label="This month compared with last month">
+        <article class="card stat">
+          <span class="stat__label">Income</span>
+          <span class="stat__value is-income-text">{{ d.current.income | currencyFormat }}</span>
+          <span class="stat__foot">
+            @if (changes()?.income; as c) {
+              <span [class.up]="c > 0" [class.down]="c < 0">{{ c > 0 ? '▲' : '▼' }} {{ abs(c) }}%</span>
+            }
+            vs {{ d.previous.income | currencyFormat }} in {{ previousLabel() }}
+          </span>
+        </article>
+
+        <article class="card stat">
+          <span class="stat__label">Expense</span>
+          <span class="stat__value is-expense-text">{{ d.current.expense | currencyFormat }}</span>
+          <span class="stat__foot">
+            @if (changes()?.expense; as c) {
+              <!-- spending more is the bad direction, so the colours flip -->
+              <span [class.down]="c > 0" [class.up]="c < 0">{{ c > 0 ? '▲' : '▼' }} {{ abs(c) }}%</span>
+            }
+            vs {{ d.previous.expense | currencyFormat }}
+          </span>
+        </article>
+
+        <article class="card stat">
+          <span class="stat__label">Left over</span>
+          <span class="stat__value" [class.is-expense-text]="d.current.net < 0">{{ d.current.net | currencyFormat }}</span>
+          <span class="stat__foot">Saved {{ d.current.savingsRate }}% of income</span>
+        </article>
+
+        <article class="card stat">
+          <span class="stat__label">Average per day</span>
+          <span class="stat__value">{{ d.averageDailyExpense | currencyFormat }}</span>
+          <span class="stat__foot">Expense over the days elapsed</span>
+        </article>
+      </section>
+
+      <!-- ============ category comparison ============ -->
+      <section class="card">
+        <div class="card__head">
+          <div>
+            <h2 class="card__title">Spending by category</h2>
+            <p class="card__sub">{{ monthLabel() }} compared with {{ previousLabel() }}</p>
+          </div>
+        </div>
+
+        <div class="card__body">
+          @if (d.expenseCategories.length === 0) {
+            <p class="muted">No expenses in either month.</p>
+          } @else {
+            <div class="tablewrap">
+              <table class="cmp">
+                <thead>
+                  <tr>
+                    <th scope="col">Category</th>
+                    <th scope="col">This month</th>
+                    <th scope="col">Last month</th>
+                    <th scope="col">Change</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  @for (c of d.expenseCategories; track c.categoryId) {
+                    <tr>
+                      <th scope="row">
+                        <span class="cmp__cat">
+                          <span class="chip chip--sm" [style.background]="c.color + '1f'" aria-hidden="true">{{ icon(c.icon) }}</span>
+                          {{ c.categoryName }}
+                        </span>
+                      </th>
+                      <td class="tabular">{{ c.current | currencyFormat }}</td>
+                      <td class="tabular muted">{{ c.previous | currencyFormat }}</td>
+                      <td class="tabular">
+                        @if (c.change === 0) {
+                          <span class="muted">—</span>
+                        } @else {
+                          <span [class.down]="c.change > 0" [class.up]="c.change < 0">
+                            {{ c.change > 0 ? '▲' : '▼' }} {{ abs(c.change) | currencyFormat }}
+                            @if (c.changePercent !== null) {
+                              <small>({{ abs(c.changePercent) }}%)</small>
+                            } @else {
+                              <small>(new)</small>
+                            }
+                          </span>
+                        }
+                      </td>
+                    </tr>
+                  }
+                </tbody>
+              </table>
+            </div>
+          }
+        </div>
+      </section>
+
+      @if (d.largestExpense; as l) {
+        <section class="card fact">
+          <span class="stat__label">Biggest single expense</span>
+          <p>
+            <strong class="tabular">{{ l.amount | currencyFormat }}</strong> on {{ l.categoryName }} · {{ l.date }}
+            @if (l.note) {
+              <span class="muted">· {{ l.note }}</span>
+            }
+          </p>
+        </section>
+      }
+    }
+  }
+</div>

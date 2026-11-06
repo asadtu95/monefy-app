@@ -1,0 +1,137 @@
+/* ---------- overall card ---------- */
+.overall {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 18px 20px;
+}
+
+.overall__top {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.overall__value {
+  margin-top: 2px;
+  font-size: 1.5rem;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+
+  .muted {
+    font-size: 1rem;
+    font-weight: 500;
+  }
+}
+
+.overall__pct {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: var(--ink-secondary);
+}
+
+.overall__facts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 20px;
+  font-size: 0.875rem;
+  color: var(--ink-secondary);
+}
+
+/* ---------- per-category rows ---------- */
+.budgets {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.budget {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--border);
+
+  &:last-child {
+    border-bottom: 0;
+  }
+}
+
+.budget__main {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.budget__top,
+.budget__foot {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.budget__name {
+  font-weight: 500;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.budget__amounts {
+  font-size: 0.875rem;
+  white-space: nowrap;
+}
+
+.budget__foot {
+  font-size: 0.8125rem;
+  color: var(--ink-muted);
+}
+
+.budget__warn {
+  color: #9a6a00;
+  font-weight: 500;
+}
+
+.budget__edit {
+  display: flex;
+  gap: 8px;
+
+  .input {
+    max-width: 180px;
+  }
+}
+
+.budget__tools {
+  display: flex;
+  gap: 4px;
+}
+
+.budget__btn {
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  font-size: 0.8125rem;
+}
+
+.budgets__note {
+  font-size: 0.8125rem;
+}
+
+@media (max-width: 560px) {
+  .budget {
+    padding: 14px 16px;
+  }
+
+  .budget__edit {
+    flex-wrap: wrap;
+
+    .input {
+      max-width: none;
+      flex: 1 1 100%;
+    }
+  }
+}

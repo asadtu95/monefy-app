@@ -132,6 +132,43 @@ export class Auth {
     }
   }
 
+  /** Updates the name shown in the header, which comes from the Supabase session. */
+  async updateDisplayName(fullName: string): Promise<void> {
+    const { data, error } = await this.client.auth.updateUser({ data: { full_name: fullName } });
+    if (error) {
+      throw new Error(error.message);
+    }
+
+    // updateUser returns the user, not a session; refresh so displayName picks it up.
+    const current = this.session();
+    if (current && data.user) {
+      this.session.set({ ...current, user: data.user });
+    }
+  }
+
+  /**
+   * Re-checks the current password by signing in with it first, so a borrowed
+   * unlocked device can't be used to take over the account.
+   */
+  async changePassword(currentPassword: string, newPassword: string): Promise<void> {
+    const email = this.email();
+    if (!email) {
+      throw new Error('You are not signed in.');
+    }
+
+    const check = await this.client.auth.signInWithPassword({ email, password: currentPassword });
+    if (check.error) {
+      throw new Error('Your current password is incorrect.');
+    }
+
+    this.session.set(check.data.session);
+
+    const { error } = await this.client.auth.updateUser({ password: newPassword });
+    if (error) {
+      throw new Error(error.message);
+    }
+  }
+
   async logout(): Promise<void> {
     await this.client.auth.signOut();
     this.session.set(null);

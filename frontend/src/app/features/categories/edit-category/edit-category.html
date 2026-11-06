@@ -1,1 +1,86 @@
-<p>edit-category works!</p>
+<div class="page">
+  <form class="card formcard" [formGroup]="form" (ngSubmit)="submit()">
+    <div class="card__head">
+      <div>
+        <h2 class="card__title">Edit category</h2>
+        <p class="card__sub">Changes apply to every past and future entry in it</p>
+      </div>
+    </div>
+
+    <div class="card__body formcard__body">
+      @if (error()) {
+        <p class="notice notice--error">{{ error() }}</p>
+      }
+
+      @if (loading()) {
+        <p class="muted">Loading…</p>
+      } @else if (type()) {
+        <div class="preview">
+          <span class="chip" [style.background]="form.controls.color.value + '1f'" aria-hidden="true">
+            {{ icon(form.controls.icon.value) }}
+          </span>
+          <span class="preview__name">{{ form.controls.name.value || 'Your category' }}</span>
+          <span class="preview__type">{{ type() }}</span>
+        </div>
+
+        <div class="field">
+          <label class="field__label" for="name">Name</label>
+          <input
+            id="name"
+            class="input"
+            type="text"
+            formControlName="name"
+            [class.is-invalid]="form.controls.name.touched && form.controls.name.invalid"
+          />
+          @if (form.controls.name.touched && form.controls.name.invalid) {
+            <span class="field__error">Give the category a name.</span>
+          }
+        </div>
+
+        <div class="field">
+          <span class="field__label">Icon</span>
+          <div class="icons">
+            @for (k of iconKeys; track k) {
+              <button
+                type="button"
+                class="icons__item"
+                [class.is-selected]="form.controls.icon.value === k"
+                (click)="pickIcon(k)"
+                [attr.aria-label]="k"
+              >
+                {{ icon(k) }}
+              </button>
+            }
+          </div>
+        </div>
+
+        <div class="field">
+          <span class="field__label">Colour</span>
+          <div class="swatches">
+            @for (c of colors; track c) {
+              <button
+                type="button"
+                class="swatch"
+                [class.is-selected]="form.controls.color.value === c"
+                [style.background]="c"
+                (click)="pickColor(c)"
+                [attr.aria-label]="c"
+              ></button>
+            }
+          </div>
+        </div>
+
+        <div class="form-actions">
+          <a class="btn btn--ghost" routerLink="/categories">Cancel</a>
+          <button class="btn btn--primary" type="submit" [disabled]="saving()">
+            {{ saving() ? 'Saving…' : 'Save changes' }}
+          </button>
+        </div>
+      } @else {
+        <div class="form-actions">
+          <a class="btn btn--ghost" routerLink="/categories">Back to categories</a>
+        </div>
+      }
+    </div>
+  </form>
+</div>

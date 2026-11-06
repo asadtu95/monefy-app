@@ -19,6 +19,7 @@ public class AppUserConfiguration : IEntityTypeConfiguration<AppUser>
         builder.Property(u => u.FullName).HasMaxLength(150);
         builder.Property(u => u.AvatarUrl).HasMaxLength(500);
         builder.Property(u => u.Currency).HasMaxLength(3).IsRequired();
+        builder.Property(u => u.MonthStartDay).HasDefaultValue(1).IsRequired();
 
         builder.HasIndex(u => u.Email).IsUnique();
     }

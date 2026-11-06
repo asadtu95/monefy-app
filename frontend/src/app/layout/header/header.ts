@@ -1,8 +1,18 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 
 import { Auth } from '../../core/services/auth';
-import { ProfileApi } from '../../core/services/profile';
+
+/** First URL segment → page title. Anything unlisted falls back to Expenses. */
+const TITLES: Record<string, string> = {
+  incomes: 'Income',
+  categories: 'Categories',
+  dashboard: 'Dashboard',
+  budgets: 'Budgets',
+  goals: 'Savings goals',
+  reports: 'Reports',
+  settings: 'Settings',
+};
 
 @Component({
   selector: 'app-header',
@@ -10,26 +20,15 @@ import { ProfileApi } from '../../core/services/profile';
   templateUrl: './header.html',
   styleUrl: './header.scss',
 })
-export class Header implements OnInit {
+export class Header {
   private readonly router = inject(Router);
-  private readonly profileApi = inject(ProfileApi);
 
   protected readonly auth = inject(Auth);
   protected readonly menuOpen = signal(false);
 
-  /** Also provisions the profile row on the API side. */
-  ngOnInit(): void {
-    this.profileApi.load().subscribe({ error: () => undefined });
-  }
-
   protected get title(): string {
-    const url = this.router.url.split('?')[0];
-
-    if (url.startsWith('/incomes')) return 'Income';
-    if (url.startsWith('/categories')) return 'Categories';
-    if (url.startsWith('/dashboard')) return 'Dashboard';
-
-    return 'Expenses';
+    const section = this.router.url.split('?')[0].split('/')[1] ?? '';
+    return TITLES[section] ?? 'Expenses';
   }
 
   protected get initial(): string {
@@ -39,6 +38,10 @@ export class Header implements OnInit {
 
   protected toggleMenu(): void {
     this.menuOpen.update((open) => !open);
+  }
+
+  protected closeMenu(): void {
+    this.menuOpen.set(false);
   }
 
   protected async logout(): Promise<void> {

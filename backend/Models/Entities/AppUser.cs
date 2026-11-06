@@ -16,6 +16,12 @@ public class AppUser
 
     public string Currency { get; set; } = "USD";
 
+    /// <summary>
+    /// Day of the month a budgeting month begins (1–28), e.g. 25 when salary
+    /// lands on the 25th. 1 means plain calendar months.
+    /// </summary>
+    public int MonthStartDay { get; set; } = 1;
+
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
     public DateTime? UpdatedAt { get; set; }

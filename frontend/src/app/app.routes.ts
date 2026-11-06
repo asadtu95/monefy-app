@@ -91,7 +91,70 @@ export const routes: Routes = [
             loadComponent: () =>
               import('./features/categories/add-category/add-category').then((m) => m.AddCategory),
           },
+          {
+            path: ':id/edit',
+            loadComponent: () =>
+              import('./features/categories/edit-category/edit-category').then(
+                (m) => m.EditCategory,
+              ),
+          },
         ],
+      },
+      {
+        path: 'budgets',
+        children: [
+          {
+            path: '',
+            loadComponent: () =>
+              import('./features/budgets/budget-list/budget-list').then((m) => m.BudgetList),
+          },
+          {
+            path: 'add',
+            loadComponent: () =>
+              import('./features/budgets/add-budget/add-budget').then((m) => m.AddBudget),
+          },
+        ],
+      },
+      {
+        path: 'goals',
+        children: [
+          {
+            path: '',
+            loadComponent: () =>
+              import('./features/goals/goals-list/goals-list').then((m) => m.GoalsList),
+          },
+          {
+            path: 'add',
+            loadComponent: () => import('./features/goals/add-goal/add-goal').then((m) => m.AddGoal),
+          },
+          {
+            // Same form as add; the :id input switches it to edit mode.
+            path: ':id/edit',
+            loadComponent: () => import('./features/goals/add-goal/add-goal').then((m) => m.AddGoal),
+          },
+        ],
+      },
+      {
+        path: 'reports',
+        children: [
+          { path: '', pathMatch: 'full', redirectTo: 'monthly' },
+          {
+            path: 'monthly',
+            loadComponent: () =>
+              import('./features/reports/monthly-report/monthly-report').then(
+                (m) => m.MonthlyReport,
+              ),
+          },
+          {
+            path: 'yearly',
+            loadComponent: () =>
+              import('./features/reports/yearly-report/yearly-report').then((m) => m.YearlyReport),
+          },
+        ],
+      },
+      {
+        path: 'settings',
+        loadComponent: () => import('./features/settings/settings').then((m) => m.Settings),
       },
     ],
   },

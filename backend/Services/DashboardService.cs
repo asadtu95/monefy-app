@@ -7,11 +7,15 @@ using Monefy.Api.Services.Interfaces;
 
 namespace Monefy.Api.Services;
 
-public class DashboardService(AppDbContext db, ICurrentUserService currentUser) : IDashboardService
+public class DashboardService(
+    AppDbContext db,
+    ICurrentUserService currentUser,
+    IPeriodService periods) : IDashboardService
 {
-    public async Task<DashboardDto> GetAsync(int year, int month, CancellationToken ct = default)
+    public async Task<DashboardDto> GetAsync(
+        int? year, int? month, CancellationToken ct = default)
     {
-        var range = MonthRange.Of(year, month);
+        var range = await periods.GetRangeAsync(year, month, ct);
         var userId = currentUser.UserId;
 
         var expenses = await db.Expenses

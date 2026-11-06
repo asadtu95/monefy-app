@@ -1,1 +1,69 @@
-<p>add-budget works!</p>
+<div class="page">
+  <form class="card formcard" [formGroup]="form" (ngSubmit)="submit()">
+    <div class="card__head">
+      <div>
+        <h2 class="card__title">New budget</h2>
+        <p class="card__sub">A spending limit that repeats every month</p>
+      </div>
+    </div>
+
+    <div class="card__body formcard__body">
+      @if (error()) {
+        <p class="notice notice--error">{{ error() }}</p>
+      }
+
+      @if (loading()) {
+        <p class="muted">Loading…</p>
+      } @else if (allTaken()) {
+        <p class="muted">Every expense category already has a budget. Change a limit from the Budgets page.</p>
+        <div class="form-actions">
+          <a class="btn btn--primary" routerLink="/budgets">Back to budgets</a>
+        </div>
+      } @else {
+        <div class="field">
+          <span class="field__label">Category</span>
+          <div class="picker">
+            @for (c of options(); track c.id) {
+              <button
+                type="button"
+                class="picker__item"
+                [class.is-selected]="form.controls.categoryId.value === c.id"
+                (click)="pick(c.id)"
+              >
+                <span class="chip" [style.background]="c.color + '1f'" aria-hidden="true">{{ icon(c.icon) }}</span>
+                <span class="picker__name">{{ c.name }}</span>
+              </button>
+            }
+          </div>
+          @if (form.controls.categoryId.touched && form.controls.categoryId.invalid) {
+            <span class="field__error">Pick a category.</span>
+          }
+        </div>
+
+        <div class="field">
+          <label class="field__label" for="amount">Monthly limit</label>
+          <input
+            id="amount"
+            class="input"
+            type="number"
+            step="1"
+            min="1"
+            placeholder="e.g. 30000"
+            formControlName="amount"
+            [class.is-invalid]="form.controls.amount.touched && form.controls.amount.invalid"
+          />
+          @if (form.controls.amount.touched && form.controls.amount.invalid) {
+            <span class="field__error">Enter a limit of at least 1.</span>
+          }
+        </div>
+
+        <div class="form-actions">
+          <a class="btn btn--ghost" routerLink="/budgets">Cancel</a>
+          <button class="btn btn--primary" type="submit" [disabled]="saving()">
+            {{ saving() ? 'Saving…' : 'Save budget' }}
+          </button>
+        </div>
+      }
+    </div>
+  </form>
+</div>

@@ -70,6 +70,11 @@ public class AuthController(
             user.Currency = dto.Currency.Trim().ToUpperInvariant();
         }
 
+        if (dto.MonthStartDay is { } startDay)
+        {
+            user.MonthStartDay = startDay;
+        }
+
         await db.SaveChangesAsync(ct);
 
         return Ok(ApiResponse<UserProfileDto>.Ok(ToDto(user), "Profile updated."));
@@ -82,6 +87,7 @@ public class AuthController(
         FullName = user.FullName,
         AvatarUrl = user.AvatarUrl,
         Currency = user.Currency,
+        MonthStartDay = user.MonthStartDay,
         CreatedAt = user.CreatedAt
     };
 }

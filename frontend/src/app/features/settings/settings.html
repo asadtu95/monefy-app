@@ -1,1 +1,108 @@
-<p>settings works!</p>
+<div class="page settings">
+  <!-- ============ profile & preferences ============ -->
+  <form class="card" [formGroup]="profileForm" (ngSubmit)="saveProfile()">
+    <div class="card__head">
+      <div>
+        <h2 class="card__title">Profile & preferences</h2>
+        <p class="card__sub">{{ auth.email() }}</p>
+      </div>
+    </div>
+
+    <div class="card__body formcard__body">
+      <div class="field">
+        <label class="field__label" for="fullName">Name</label>
+        <input id="fullName" class="input" type="text" autocomplete="name" formControlName="fullName" />
+      </div>
+
+      <div class="field">
+        <label class="field__label" for="currency">Currency</label>
+        <select id="currency" class="select" formControlName="currency">
+          @for (c of currencies; track c.code) {
+            <option [value]="c.code">{{ c.symbol }} · {{ c.label }} ({{ c.code }})</option>
+          }
+        </select>
+        <span class="field__hint">Only changes the symbol shown. Amounts are not converted.</span>
+      </div>
+
+      <div class="field">
+        <label class="field__label" for="startDay">Month starts on day</label>
+        <select id="startDay" class="select" formControlName="monthStartDay">
+          @for (d of startDays; track d) {
+            <option [ngValue]="d">{{ d }}{{ d === 1 ? ' (calendar month)' : '' }}</option>
+          }
+        </select>
+        <span class="field__hint">
+          Pick the day your salary arrives so each month runs from payday to payday.
+          {{ startDayPreview() }}
+        </span>
+      </div>
+
+      @if (profileMessage(); as m) {
+        <p class="notice" [class.notice--error]="!m.ok">{{ m.text }}</p>
+      }
+
+      <div class="form-actions">
+        <button class="btn btn--primary" type="submit" [disabled]="profileSaving()">
+          {{ profileSaving() ? 'Saving…' : 'Save settings' }}
+        </button>
+      </div>
+    </div>
+  </form>
+
+  <!-- ============ password ============ -->
+  <form class="card" [formGroup]="passwordForm" (ngSubmit)="changePassword()">
+    <div class="card__head">
+      <div>
+        <h2 class="card__title">Change password</h2>
+        <p class="card__sub">You'll stay signed in on this device</p>
+      </div>
+    </div>
+
+    <div class="card__body formcard__body">
+      <div class="field">
+        <label class="field__label" for="current">Current password</label>
+        <input id="current" class="input" type="password" autocomplete="current-password" formControlName="current" />
+      </div>
+
+      <div class="field">
+        <label class="field__label" for="next">New password</label>
+        <input
+          id="next"
+          class="input"
+          type="password"
+          autocomplete="new-password"
+          formControlName="next"
+          [class.is-invalid]="passwordForm.controls.next.touched && passwordForm.controls.next.invalid"
+        />
+        @if (passwordForm.controls.next.touched && passwordForm.controls.next.invalid) {
+          <span class="field__error">Use 6 to 72 characters.</span>
+        }
+      </div>
+
+      <div class="field">
+        <label class="field__label" for="confirm">Confirm new password</label>
+        <input
+          id="confirm"
+          class="input"
+          type="password"
+          autocomplete="new-password"
+          formControlName="confirm"
+          [class.is-invalid]="passwordForm.controls.confirm.touched && passwordForm.hasError('mismatch')"
+        />
+        @if (passwordForm.controls.confirm.touched && passwordForm.hasError('mismatch')) {
+          <span class="field__error">The passwords don't match.</span>
+        }
+      </div>
+
+      @if (passwordMessage(); as m) {
+        <p class="notice" [class.notice--error]="!m.ok">{{ m.text }}</p>
+      }
+
+      <div class="form-actions">
+        <button class="btn btn--primary" type="submit" [disabled]="passwordSaving()">
+          {{ passwordSaving() ? 'Changing…' : 'Change password' }}
+        </button>
+      </div>
+    </div>
+  </form>
+</div>

@@ -12,9 +12,11 @@ public class Budget : BaseEntity
 
     public BudgetPeriod Period { get; set; } = BudgetPeriod.Monthly;
 
+    /// <summary>First day the limit applies from.</summary>
     public DateOnly StartDate { get; set; }
 
-    public DateOnly EndDate { get; set; }
+    /// <summary>Null while the limit repeats every month with no end.</summary>
+    public DateOnly? EndDate { get; set; }
 
     public bool IsActive { get; set; } = true;
 

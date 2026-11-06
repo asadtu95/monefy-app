@@ -17,6 +17,8 @@ export class AuthStub {
   register = async () => undefined;
   login = async () => undefined;
   sendPasswordReset = async () => undefined;
+  updateDisplayName = async () => undefined;
+  changePassword = async () => undefined;
   logout = async () => undefined;
   forceSignOut = async () => undefined;
 }

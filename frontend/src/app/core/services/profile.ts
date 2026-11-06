@@ -3,7 +3,7 @@ import { Observable, tap } from 'rxjs';
 
 import { Api } from './api';
 import { Auth } from './auth';
-import { User } from '../models/user.model';
+import { UpdateProfileRequest, User } from '../models/user.model';
 
 @Injectable({ providedIn: 'root' })
 export class ProfileApi {
@@ -15,7 +15,7 @@ export class ProfileApi {
     return this.api.get<User>('auth/me').pipe(tap((user) => this.auth.profile.set(user)));
   }
 
-  update(body: { fullName?: string; currency?: string }): Observable<User> {
+  update(body: UpdateProfileRequest): Observable<User> {
     return this.api.put<User>('auth/me', body).pipe(tap((user) => this.auth.profile.set(user)));
   }
 }

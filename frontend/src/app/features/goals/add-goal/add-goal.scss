@@ -1,0 +1,38 @@
+.row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 12px;
+}
+
+.icons {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(44px, 1fr));
+  gap: 6px;
+}
+
+.icons__item {
+  height: 44px;
+  border: 1px solid var(--border-strong);
+  border-radius: var(--r-md);
+  background: var(--surface);
+  font-size: 1.125rem;
+
+  &:hover {
+    background: var(--surface-hover);
+  }
+
+  &.is-selected {
+    border-color: var(--brand);
+    background: var(--brand-wash);
+  }
+}
+
+.form-actions__left {
+  margin-right: auto;
+}
+
+@media (max-width: 520px) {
+  .row {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}

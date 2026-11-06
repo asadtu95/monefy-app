@@ -1,1 +1,168 @@
-<p>budget-list works!</p>
+<div class="page">
+  <div class="page__head">
+    <div class="monthnav">
+      <button class="monthnav__btn" type="button" (click)="shiftMonth(-1)" aria-label="Previous month">‹</button>
+      <span class="monthnav__label">
+        {{ monthLabel() }}
+        @if (rangeLabel(); as r) {
+          <small class="monthnav__range">{{ r }}</small>
+        }
+      </span>
+      <button class="monthnav__btn" type="button" (click)="shiftMonth(1)" aria-label="Next month">›</button>
+    </div>
+
+    <a class="btn btn--primary" routerLink="/budgets/add">Add budget</a>
+  </div>
+
+  @if (error() && data()) {
+    <p class="notice notice--error">{{ error() }}</p>
+  }
+
+  @if (loading()) {
+    <div class="card"><div class="empty">Loading…</div></div>
+  } @else if (!data()) {
+    <div class="card">
+      <div class="empty">
+        <span class="empty__title">{{ error() }}</span>
+        <button class="btn btn--ghost" type="button" (click)="load()">Try again</button>
+      </div>
+    </div>
+  } @else if (data(); as d) {
+    @if (d.budgets.length === 0) {
+      <div class="card">
+        <div class="empty">
+          <span class="empty__title">No budgets yet</span>
+          <p>Set a monthly limit for a category, e.g. Food: 30,000, and track how much is left.</p>
+          <a class="btn btn--primary" routerLink="/budgets/add">Add your first budget</a>
+        </div>
+      </div>
+    } @else {
+      <!-- ============ overall ============ -->
+      <section class="card overall">
+        <div class="overall__top">
+          <div>
+            <span class="stat__label">Spent of total budget</span>
+            <p class="overall__value">
+              <span [class.is-expense-text]="d.totalRemaining < 0">{{ d.totalSpent | currencyFormat }}</span>
+              <span class="muted"> / {{ d.totalBudget | currencyFormat }}</span>
+            </p>
+          </div>
+          <span class="overall__pct tabular" [class.is-expense-text]="d.percentageUsed > 100">
+            {{ d.percentageUsed }}%
+          </span>
+        </div>
+
+        <div class="progress">
+          <div
+            class="progress__fill"
+            [class.is-warning]="d.percentageUsed >= 80 && d.percentageUsed <= 100"
+            [class.is-over]="d.percentageUsed > 100"
+            [style.width.%]="d.percentageUsed"
+          ></div>
+        </div>
+
+        <div class="overall__facts">
+          <span>
+            @if (d.totalRemaining >= 0) {
+              <strong>{{ d.totalRemaining | currencyFormat }}</strong> left
+            } @else {
+              <strong class="is-expense-text">{{ -d.totalRemaining | currencyFormat }}</strong> over budget
+            }
+          </span>
+          @if (perDay(); as daily) {
+            <span>
+              About <strong>{{ daily | currencyFormat }}</strong> a day for the next {{ d.daysLeft }} day(s)
+            </span>
+          }
+          @if (overCount() > 0) {
+            <span class="is-expense-text">{{ overCount() }} budget(s) exceeded</span>
+          }
+        </div>
+      </section>
+
+      <!-- ============ per category ============ -->
+      <section class="card">
+        <ul class="budgets">
+          @for (b of d.budgets; track b.id) {
+            <li class="budget">
+              <span class="chip" [style.background]="b.categoryColor + '1f'" aria-hidden="true">
+                {{ icon(b.categoryIcon) }}
+              </span>
+
+              <div class="budget__main">
+                <div class="budget__top">
+                  <span class="budget__name">{{ b.categoryName }}</span>
+                  <span class="budget__amounts tabular">
+                    {{ b.spent | currencyFormat }}
+                    <span class="muted">/ {{ b.amount | currencyFormat }}</span>
+                  </span>
+                </div>
+
+                <div class="progress">
+                  <div class="progress__fill" [class]="barClass(b)" [style.width.%]="b.percentageUsed"></div>
+                </div>
+
+                <div class="budget__foot">
+                  @if (b.status === 'over') {
+                    <span class="is-expense-text">Over by {{ -b.remaining | currencyFormat }}</span>
+                  } @else {
+                    <span [class.budget__warn]="b.status === 'warning'">
+                      {{ b.remaining | currencyFormat }} left
+                    </span>
+                  }
+                  <span class="tabular">{{ b.percentageUsed }}%</span>
+                </div>
+
+                @if (editingId() === b.id) {
+                  <div class="budget__edit">
+                    <label class="visually-hidden" [attr.for]="'limit-' + b.id">New monthly limit</label>
+                    <input
+                      class="input"
+                      type="number"
+                      min="1"
+                      step="1"
+                      [id]="'limit-' + b.id"
+                      [value]="editAmount()"
+                      (input)="onAmountInput($event)"
+                      (keydown.enter)="saveEdit(b)"
+                      (keydown.escape)="cancelEdit()"
+                    />
+                    <button class="btn btn--primary" type="button" [disabled]="saving()" (click)="saveEdit(b)">
+                      Save
+                    </button>
+                    <button class="btn btn--ghost" type="button" (click)="cancelEdit()">Cancel</button>
+                  </div>
+                }
+              </div>
+
+              @if (editingId() !== b.id) {
+                <div class="budget__tools">
+                  <button
+                    class="btn btn--ghost budget__btn"
+                    type="button"
+                    (click)="startEdit(b)"
+                    [attr.aria-label]="'Change ' + b.categoryName + ' limit'"
+                  >
+                    ✎
+                  </button>
+                  <button
+                    class="btn btn--danger budget__btn"
+                    type="button"
+                    (click)="remove(b)"
+                    [attr.aria-label]="'Remove ' + b.categoryName + ' budget'"
+                  >
+                    ✕
+                  </button>
+                </div>
+              }
+            </li>
+          }
+        </ul>
+      </section>
+
+      <p class="muted budgets__note">
+        Limits repeat every month. Changing one also changes how past months are measured.
+      </p>
+    }
+  }
+</div>

@@ -64,3 +64,31 @@ export const CATEGORY_ICONS: Record<string, string> = {
 export function iconFor(key: string): string {
   return CATEGORY_ICONS[key] ?? '•';
 }
+
+/** Icons offered for savings goals. Stored as the key, shown as the emoji. */
+export const GOAL_ICONS: Record<string, string> = {
+  target: '🎯',
+  shield: '🛡️',
+  home: '🏠',
+  car: '🚗',
+  plane: '✈️',
+  phone: '📱',
+  laptop: '💻',
+  ring: '💍',
+  education: '🎓',
+  gift: '🎁',
+  health: '🩺',
+  piggy: '🐷',
+};
+
+export function goalIconFor(key: string | null | undefined): string {
+  return (key && GOAL_ICONS[key]) || '🎯';
+}
+
+/** Local date as YYYY-MM-DD, the format `<input type="date">` and the API use. */
+export function toIsoDate(date: Date = new Date()): string {
+  const y = date.getFullYear();
+  const m = String(date.getMonth() + 1).padStart(2, '0');
+  const d = String(date.getDate()).padStart(2, '0');
+  return `${y}-${m}-${d}`;
+}

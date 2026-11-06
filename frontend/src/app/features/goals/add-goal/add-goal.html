@@ -1,1 +1,102 @@
-<p>add-goal works!</p>
+<div class="page">
+  <form class="card formcard" [formGroup]="form" (ngSubmit)="submit()">
+    <div class="card__head">
+      <div>
+        <h2 class="card__title">{{ isEdit() ? 'Edit goal' : 'New savings goal' }}</h2>
+        <p class="card__sub">What are you saving for, how much, and by when?</p>
+      </div>
+    </div>
+
+    <div class="card__body formcard__body">
+      @if (error()) {
+        <p class="notice notice--error">{{ error() }}</p>
+      }
+
+      @if (loading()) {
+        <p class="muted">Loading…</p>
+      } @else {
+        <div class="field">
+          <label class="field__label" for="name">Name</label>
+          <input
+            id="name"
+            class="input"
+            type="text"
+            placeholder="e.g. Emergency fund"
+            formControlName="name"
+            [class.is-invalid]="form.controls.name.touched && form.controls.name.invalid"
+          />
+          @if (form.controls.name.touched && form.controls.name.invalid) {
+            <span class="field__error">Give the goal a name.</span>
+          }
+        </div>
+
+        <div class="field">
+          <span class="field__label">Icon</span>
+          <div class="icons">
+            @for (k of iconKeys; track k) {
+              <button
+                type="button"
+                class="icons__item"
+                [class.is-selected]="form.controls.icon.value === k"
+                (click)="pickIcon(k)"
+                [attr.aria-label]="k"
+              >
+                {{ icon(k) }}
+              </button>
+            }
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="field">
+            <label class="field__label" for="target">Target amount</label>
+            <input
+              id="target"
+              class="input"
+              type="number"
+              min="1"
+              step="1"
+              placeholder="e.g. 200000"
+              formControlName="targetAmount"
+              [class.is-invalid]="form.controls.targetAmount.touched && form.controls.targetAmount.invalid"
+            />
+            @if (form.controls.targetAmount.touched && form.controls.targetAmount.invalid) {
+              <span class="field__error">Enter a target of at least 1.</span>
+            }
+          </div>
+
+          <div class="field">
+            <label class="field__label" for="date">Target date</label>
+            <input
+              id="date"
+              class="input"
+              type="date"
+              [min]="isEdit() ? null : minDate"
+              formControlName="targetDate"
+            />
+          </div>
+        </div>
+
+        @if (preview(); as p) {
+          <p class="notice">
+            Save about <strong>{{ p.monthly | currencyFormat }}</strong> a month for {{ p.months }} month(s) to get there.
+          </p>
+        }
+
+        @if (isEdit() && status() === Status.Cancelled) {
+          <p class="muted">This goal is cancelled. Saving will keep it cancelled — use Re-open on the Goals page to restart it.</p>
+        }
+
+        <div class="form-actions">
+          @if (isEdit() && status() !== Status.Cancelled) {
+            <button class="btn btn--danger form-actions__left" type="button" (click)="cancelGoal()">Cancel goal</button>
+          }
+          <a class="btn btn--ghost" routerLink="/goals">Back</a>
+          <button class="btn btn--primary" type="submit" [disabled]="saving()">
+            {{ saving() ? 'Saving…' : isEdit() ? 'Save changes' : 'Create goal' }}
+          </button>
+        </div>
+      }
+    </div>
+  </form>
+</div>

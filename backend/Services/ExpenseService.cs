@@ -9,12 +9,15 @@ using Monefy.Api.Services.Interfaces;
 
 namespace Monefy.Api.Services;
 
-public class ExpenseService(AppDbContext db, ICurrentUserService currentUser) : IExpenseService
+public class ExpenseService(
+    AppDbContext db,
+    ICurrentUserService currentUser,
+    IPeriodService periods) : IExpenseService
 {
     public async Task<IReadOnlyList<ExpenseDto>> GetAsync(
-        int year, int month, CancellationToken ct = default)
+        int? year, int? month, CancellationToken ct = default)
     {
-        var range = MonthRange.Of(year, month);
+        var range = await periods.GetRangeAsync(year, month, ct);
         var userId = currentUser.UserId;
 
         var expenses = await db.Expenses

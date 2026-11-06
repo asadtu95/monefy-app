@@ -54,6 +54,12 @@ namespace Monefy.Api.Data.Migrations
                         .HasColumnType("character varying(150)")
                         .HasColumnName("full_name");
 
+                    b.Property<int>("MonthStartDay")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasDefaultValue(1)
+                        .HasColumnName("month_start_day");
+
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("updated_at");
@@ -88,7 +94,7 @@ namespace Monefy.Api.Data.Migrations
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("created_at");
 
-                    b.Property<DateOnly>("EndDate")
+                    b.Property<DateOnly?>("EndDate")
                         .HasColumnType("date")
                         .HasColumnName("end_date");
 

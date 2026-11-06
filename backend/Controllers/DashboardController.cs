@@ -11,13 +11,12 @@ namespace Monefy.Api.Controllers;
 [Route("api/[controller]")]
 public class DashboardController(IDashboardService service) : ControllerBase
 {
-    /// <summary>Every dashboard figure for one month. Defaults to the current month.</summary>
+    /// <summary>Every dashboard figure for one budgeting month. Defaults to the month today falls in.</summary>
     [HttpGet]
     public async Task<ActionResult<ApiResponse<DashboardDto>>> Get(
         [FromQuery] int? year, [FromQuery] int? month, CancellationToken ct)
     {
-        var today = DateOnly.FromDateTime(DateTime.UtcNow);
-        var dashboard = await service.GetAsync(year ?? today.Year, month ?? today.Month, ct);
+        var dashboard = await service.GetAsync(year, month, ct);
 
         return Ok(ApiResponse<DashboardDto>.Ok(dashboard));
     }

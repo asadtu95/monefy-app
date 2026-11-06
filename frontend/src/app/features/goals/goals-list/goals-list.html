@@ -1,1 +1,195 @@
-<p>goals-list works!</p>
+<div class="page">
+  <div class="page__head">
+    <p class="muted">Put money aside for the things that matter and watch each goal fill up.</p>
+    <a class="btn btn--primary" routerLink="/goals/add">New goal</a>
+  </div>
+
+  @if (error() && goals().length > 0) {
+    <p class="notice notice--error">{{ error() }}</p>
+  }
+
+  @if (loading()) {
+    <div class="card"><div class="empty">Loading…</div></div>
+  } @else if (error() && goals().length === 0) {
+    <div class="card">
+      <div class="empty">
+        <span class="empty__title">{{ error() }}</span>
+        <button class="btn btn--ghost" type="button" (click)="load()">Try again</button>
+      </div>
+    </div>
+  } @else if (goals().length === 0) {
+    <div class="card">
+      <div class="empty">
+        <span class="empty__title">No goals yet</span>
+        <p>An emergency fund, a new phone, a trip — give it a target and a date.</p>
+        <a class="btn btn--primary" routerLink="/goals/add">Create your first goal</a>
+      </div>
+    </div>
+  } @else {
+    <!-- ============ summary ============ -->
+    <section class="stats" aria-label="Goals summary">
+      <article class="card stat">
+        <span class="stat__label">Total saved</span>
+        <span class="stat__value is-savings-text">{{ totals().saved | currencyFormat }}</span>
+        <span class="stat__foot">Across all goals</span>
+      </article>
+      <article class="card stat">
+        <span class="stat__label">Still aiming for</span>
+        <span class="stat__value">{{ totals().target | currencyFormat }}</span>
+        <span class="stat__foot">{{ active().length }} active goal(s)</span>
+      </article>
+      <article class="card stat">
+        <span class="stat__label">Save each month</span>
+        <span class="stat__value">{{ totals().monthly | currencyFormat }}</span>
+        <span class="stat__foot">To hit every deadline</span>
+      </article>
+      <article class="card stat">
+        <span class="stat__label">Achieved</span>
+        <span class="stat__value is-income-text">{{ totals().achieved }}</span>
+        <span class="stat__foot">Goal(s) reached</span>
+      </article>
+    </section>
+
+    <!-- ============ goal cards ============ -->
+    <div class="goals">
+      @for (g of goals(); track g.id) {
+        <article class="card goal" [class.goal--muted]="g.status === Status.Cancelled">
+          <header class="goal__head">
+            <span class="goal__icon" aria-hidden="true">{{ icon(g.icon) }}</span>
+            <div class="goal__title">
+              <h2 class="goal__name">{{ g.name }}</h2>
+              <span class="goal__date">Target {{ monthYear(g.targetDate) }}</span>
+            </div>
+            @if (g.status === Status.Achieved) {
+              <span class="badge badge--done">Achieved</span>
+            } @else if (g.status === Status.Cancelled) {
+              <span class="badge">Cancelled</span>
+            } @else if (g.isOverdue) {
+              <span class="badge badge--late">Overdue</span>
+            }
+          </header>
+
+          <div class="goal__amounts">
+            <span class="goal__saved tabular">{{ g.currentAmount | currencyFormat }}</span>
+            <span class="muted tabular">of {{ g.targetAmount | currencyFormat }}</span>
+          </div>
+
+          <div class="progress">
+            <div class="progress__fill is-income" [style.width.%]="g.percentageComplete"></div>
+          </div>
+
+          <p class="goal__hint">
+            @if (g.status === Status.Achieved) {
+              Goal reached. Well done!
+            } @else if (g.status === Status.Cancelled) {
+              Cancelled · {{ g.percentageComplete }}% was saved
+            } @else if (g.isOverdue) {
+              {{ g.remainingAmount | currencyFormat }} still to go. The target date has passed.
+            } @else {
+              {{ g.percentageComplete }}% · save <strong>{{ g.monthlyNeeded | currencyFormat }}</strong>/month
+              for {{ g.monthsLeft }} month(s)
+            }
+          </p>
+
+          <div class="goal__actions">
+            @if (g.status !== Status.Cancelled) {
+              <button class="btn btn--primary goal__btn" type="button" (click)="toggle(g, 'add')">
+                {{ isOpen(g, 'add') ? 'Close' : 'Add money' }}
+              </button>
+            }
+            <button class="btn btn--ghost goal__btn" type="button" (click)="toggle(g, 'history')">
+              History ({{ g.contributions.length }})
+            </button>
+            <a class="btn btn--ghost goal__icon-btn" [routerLink]="['/goals', g.id, 'edit']" [attr.aria-label]="'Edit ' + g.name">✎</a>
+            @if (g.status === Status.Cancelled) {
+              <button class="btn btn--ghost goal__btn" type="button" (click)="setStatus(g, Status.Active)">Re-open</button>
+            }
+            <button class="btn btn--danger goal__icon-btn" type="button" (click)="remove(g)" [attr.aria-label]="'Delete ' + g.name">✕</button>
+          </div>
+
+          <!-- add / withdraw -->
+          @if (isOpen(g, 'add')) {
+            <form class="panel" [formGroup]="contribution" (ngSubmit)="saveContribution(g)">
+              <div class="segmented" role="radiogroup" aria-label="Add or withdraw">
+                <label class="segmented__item" [class.is-selected]="contribution.controls.direction.value === 'in'">
+                  <input type="radio" value="in" formControlName="direction" class="visually-hidden" />
+                  Add
+                </label>
+                <label class="segmented__item" [class.is-selected]="contribution.controls.direction.value === 'out'">
+                  <input type="radio" value="out" formControlName="direction" class="visually-hidden" />
+                  Withdraw
+                </label>
+              </div>
+
+              <div class="panel__row">
+                <div class="field">
+                  <label class="field__label" [attr.for]="'amt-' + g.id">Amount</label>
+                  <input class="input" type="number" min="0.01" step="0.01" [id]="'amt-' + g.id" formControlName="amount" />
+                </div>
+                <div class="field">
+                  <label class="field__label" [attr.for]="'date-' + g.id">Date</label>
+                  <input class="input" type="date" [id]="'date-' + g.id" formControlName="date" />
+                </div>
+              </div>
+
+              <div class="field">
+                <label class="field__label" [attr.for]="'note-' + g.id">Note <span class="muted">(optional)</span></label>
+                <input class="input" type="text" maxlength="500" [id]="'note-' + g.id" formControlName="note" />
+              </div>
+
+              @if (contribution.controls.amount.touched && contribution.controls.amount.invalid) {
+                <span class="field__error">Enter an amount greater than zero.</span>
+              }
+              @if (panelError()) {
+                <span class="field__error">{{ panelError() }}</span>
+              }
+
+              <div class="form-actions">
+                <button class="btn btn--primary" type="submit" [disabled]="saving()">
+                  {{ saving() ? 'Saving…' : 'Save' }}
+                </button>
+              </div>
+            </form>
+          }
+
+          <!-- history -->
+          @if (isOpen(g, 'history')) {
+            <div class="panel">
+              @if (panelError()) {
+                <span class="field__error">{{ panelError() }}</span>
+              }
+              @if (g.contributions.length === 0) {
+                <p class="muted">Nothing saved yet.</p>
+              } @else {
+                <ul class="history">
+                  @for (c of g.contributions; track c.id) {
+                    <li class="history__row">
+                      <div class="history__main">
+                        <span class="tabular" [class.is-income-text]="c.amount > 0" [class.is-expense-text]="c.amount < 0">
+                          {{ c.amount > 0 ? '+' : '' }}{{ c.amount | currencyFormat }}
+                        </span>
+                        <span class="history__meta">{{ c.date }}@if (c.note) { · {{ c.note }} }</span>
+                      </div>
+                      <button
+                        class="btn btn--danger goal__icon-btn"
+                        type="button"
+                        (click)="removeContribution(g, c.id)"
+                        aria-label="Remove entry"
+                      >
+                        ✕
+                      </button>
+                    </li>
+                  }
+                </ul>
+              }
+            </div>
+          }
+        </article>
+      }
+    </div>
+
+    <p class="muted goals__note">
+      Goals track money you set aside. They don't change your income or expense totals.
+    </p>
+  }
+</div>

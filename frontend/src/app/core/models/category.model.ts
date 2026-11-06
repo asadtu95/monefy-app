@@ -16,4 +16,5 @@ export interface CreateCategoryRequest {
   type: TransactionType;
 }
 
-export type UpdateCategoryRequest = Partial<CreateCategoryRequest>;
+/** Type cannot change once transactions may reference the category. */
+export type UpdateCategoryRequest = Omit<CreateCategoryRequest, 'type'>;

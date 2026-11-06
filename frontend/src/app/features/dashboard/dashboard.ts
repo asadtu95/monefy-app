@@ -2,9 +2,10 @@ import { Component, computed, inject, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 
 import { DashboardApi } from '../../core/services/transactions';
+import { Period } from '../../core/services/period';
 import { Dashboard as DashboardModel } from '../../core/models/report.model';
 import { CurrencyFormatPipe } from '../../shared/pipes/currency-format-pipe';
-import { MONTH_NAMES, iconFor } from '../../core/constants/app.constants';
+import { iconFor } from '../../core/constants/app.constants';
 
 interface DayColumn {
   day: number;
@@ -28,12 +29,16 @@ export class Dashboard {
   protected readonly loading = signal(true);
   protected readonly error = signal<string | null>(null);
 
-  private readonly today = new Date();
-  protected readonly year = signal(this.today.getFullYear());
-  protected readonly month = signal(this.today.getMonth() + 1);
+  private readonly period = inject(Period);
+  private readonly initial = this.period.current();
+  protected readonly year = signal(this.initial.year);
+  protected readonly month = signal(this.initial.month);
 
-  protected readonly monthLabel = computed(
-    () => `${MONTH_NAMES[this.month() - 1]} ${this.year()}`,
+  protected readonly monthLabel = computed(() => this.period.label(this.year(), this.month()));
+
+  /** "25 Oct – 24 Nov" when months don't follow the calendar. */
+  protected readonly rangeLabel = computed(() =>
+    this.period.rangeLabel(this.year(), this.month()),
   );
 
   /** Largest single-day value; the shared scale both series are drawn against. */

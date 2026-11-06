@@ -11,13 +11,12 @@ namespace Monefy.Api.Controllers;
 [Route("api/[controller]")]
 public class IncomesController(IIncomeService service) : ControllerBase
 {
-    /// <summary>Income for one calendar month. Defaults to the current month.</summary>
+    /// <summary>Income for one budgeting month. Defaults to the month today falls in.</summary>
     [HttpGet]
     public async Task<ActionResult<ApiResponse<IReadOnlyList<IncomeDto>>>> Get(
         [FromQuery] int? year, [FromQuery] int? month, CancellationToken ct)
     {
-        var today = DateOnly.FromDateTime(DateTime.UtcNow);
-        var incomes = await service.GetAsync(year ?? today.Year, month ?? today.Month, ct);
+        var incomes = await service.GetAsync(year, month, ct);
 
         return Ok(ApiResponse<IReadOnlyList<IncomeDto>>.Ok(incomes));
     }

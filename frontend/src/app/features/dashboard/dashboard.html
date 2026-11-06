@@ -3,7 +3,12 @@
   <div class="page__head">
     <div class="monthnav">
       <button class="monthnav__btn" type="button" (click)="shiftMonth(-1)" aria-label="Previous month">‹</button>
-      <span class="monthnav__label">{{ monthLabel() }}</span>
+      <span class="monthnav__label">
+        {{ monthLabel() }}
+        @if (rangeLabel(); as r) {
+          <small class="monthnav__range">{{ r }}</small>
+        }
+      </span>
       <button class="monthnav__btn" type="button" (click)="shiftMonth(1)" aria-label="Next month">›</button>
     </div>
   </div>

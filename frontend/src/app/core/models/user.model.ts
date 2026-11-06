@@ -4,7 +4,15 @@ export interface User {
   fullName: string | null;
   avatarUrl: string | null;
   currency: string;
+  /** Day a budgeting month begins (1–28). 1 = calendar months. */
+  monthStartDay: number;
   createdAt: string;
+}
+
+export interface UpdateProfileRequest {
+  fullName?: string;
+  currency?: string;
+  monthStartDay?: number;
 }
 
 export interface LoginRequest {
